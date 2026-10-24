@@ -101,6 +101,28 @@ XIAO MJPEG handler'it ei lisatud, sest olemasolev station backend vajab ainult
 snapshot'i ning loob lokaalse MJPEG voo ise. See hoiab XIAO status endpoint'i
 diagnostiliselt kasutatavana ja capture ownership'i üheselt mutex'i taga.
 
+### USB Serial varuvariant (`XiaoSerialCamera`)
+
+Kui Etherneti station PC ei jõua XIAO Wi-Fi IP-ni, saab tööriistakaamerat
+lugeda USB Seriali kaudu:
+
+```bash
+python -m src.camera_server --xiao-serial-port COM5
+```
+
+`XiaoSerialCamera` kasutab 3D Printing Lab 2
+[USB diagnostikapüsivara](https://github.com/Dennel04/3d-printing-course/tree/main/3d-print/lab2/tool-camera/firmware)
+protokolli: `c` → `JPG <baidid>` ja JPEG, `i` → `INFO camera=… pid=…`.
+Ühendamisel küsitakse `INFO` rida; `/api/cameras` näitab väljas
+`detected_sensor` driver'i PID-i järgi sensori nime (nt `OV3660`).
+Resolutsioon loetakse iga JPEG-i SOF päisest. DTR/RTS hoitakse madalal, et
+pordi avamine ESP32-S3-e ei lähtestaks. `--xiao-serial-port` ja
+`--xiao-snapshot-url` välistavad teineteist. COM-porti saab korraga kasutada
+üks protsess: `capture.py` ja station'i leht ei tööta samal ajal.
+
+Automaattestid kasutavad simuleeritud porti. Päris COM5 kaader station'i
+lehel, FPS ja viide: `TODO — waiting for physical test`.
+
 ## Mock-režiim ja lokaalne leht
 
 Käivita Lab 2 juurkaustast:

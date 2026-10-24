@@ -2,8 +2,19 @@ import threading
 import time
 from urllib.error import URLError
 
+import pytest
+
 from src.camera_server import build_sources, create_camera_app, parse_args
-from src.cameras import MockCamera, UsbCamera, UsbCameraConfig, XiaoCamera, XiaoCameraConfig
+from src.cameras import (
+    MockCamera,
+    UsbCamera,
+    UsbCameraConfig,
+    XiaoCamera,
+    XiaoCameraConfig,
+    XiaoSerialCamera,
+    XiaoSerialCameraConfig,
+)
+from src.cameras.xiao_serial_camera import jpeg_dimensions
 from src.e2e_demo import run_demo
 
 
@@ -294,6 +305,123 @@ def test_non_mock_defaults_do_not_hardcode_xiao_address():
     sources = build_sources(parse_args([]))
     assert sources["tool"].config.snapshot_url == ""
     assert sources["table"].config.device == 0
+
+
+# Minimal JPEG: SOI, SOF0 for 1600 x 1200 with 3 components, EOI.
+UXGA_JPEG = (
+    b"\xff\xd8\xff\xc0\x00\x11\x08\x04\xb0\x06\x40\x03"
+    + b"\x01\x22\x00\x02\x11\x01\x03\x11\x01"
+    + b"\xff\xd9"
+)
+
+
+class FakeXiaoSerial:
+    """Answers like the 3D Printing Lab 2 USB diagnostic firmware."""
+
+    def __init__(self, *, camera="ok", pid="0x3660", boot_line=b"READY sensor PID 0x3660\n"):
+        self.camera = camera
+        self.pid = pid
+        self.pending = bytearray(boot_line)
+        self.closed = False
+
+    def reset_input_buffer(self):
+        # Keep the boot line: a real port opened right after reset can still
+        # hold it, and the source must skip it.
+        pass
+
+    def write(self, data):
+        if data == b"i":
+            self.pending += f"INFO camera={self.camera} pid={self.pid} psram=8386199\n".encode()
+        elif data == b"c":
+            self.pending += f"JPG {len(UXGA_JPEG)}\n".encode() + UXGA_JPEG
+
+    def flush(self):
+        pass
+
+    def readline(self):
+        end = self.pending.find(b"\n")
+        if end < 0:
+            line, self.pending = bytes(self.pending), bytearray()
+            return line
+        line, self.pending = bytes(self.pending[: end + 1]), self.pending[end + 1 :]
+        return line
+
+    def read(self, size):
+        data, self.pending = bytes(self.pending[:size]), self.pending[size:]
+        return data
+
+    def close(self):
+        self.closed = True
+
+
+def serial_tool(fake, **config):
+    opened = []
+
+    def opener(port, baud, timeout):
+        opened.append(port)
+        return fake
+
+    source = XiaoSerialCamera(
+        XiaoSerialCameraConfig(port="COM5", target_fps=50, retry_interval_s=0.01, **config),
+        serial_opener=opener,
+    )
+    return source, opened
+
+
+def test_xiao_serial_gives_full_jpeg_with_real_resolution_and_sensor():
+    source, opened = serial_tool(FakeXiaoSerial())
+    source.start()
+    try:
+        frame = source.get_frame(timeout=1)
+        assert frame is not None
+        assert frame.jpeg == UXGA_JPEG
+        status = source.status()
+        assert status["resolution"] == {"width": 1600, "height": 1200}
+        assert status["configuration"]["backend"] == "xiao-usb-serial"
+        assert status["configuration"]["detected_sensor"] == "OV3660"
+        assert opened == ["COM5"]
+    finally:
+        source.stop()
+
+
+def test_xiao_serial_camera_fault_is_reported_without_crashing_page():
+    fake = FakeXiaoSerial(camera="fail", pid="0x0")
+    tool, _ = serial_tool(fake)
+    app = create_camera_app({"table": MockCamera("table"), "tool": tool})
+    try:
+        assert wait_until(lambda: tool.status()["state"] == "unavailable")
+        assert "camera=fail" in tool.status()["error"]
+        assert fake.closed is True
+        assert app.test_client().get("/").status_code == 200
+        assert app.test_client().get("/snapshot/tool.jpg").status_code == 503
+    finally:
+        stop_app(app)
+
+
+def test_xiao_serial_without_port_is_unavailable():
+    source = XiaoSerialCamera(XiaoSerialCameraConfig(retry_interval_s=0.01))
+    source.start()
+    try:
+        assert wait_until(lambda: source.status()["state"] == "unavailable")
+        assert "not configured" in source.status()["error"]
+    finally:
+        source.stop()
+
+
+def test_serial_port_option_selects_serial_tool_camera():
+    sources = build_sources(parse_args(["--xiao-serial-port", "COM5"]))
+    assert isinstance(sources["tool"], XiaoSerialCamera)
+    assert sources["tool"].config.port == "COM5"
+
+
+def test_serial_port_and_snapshot_url_are_exclusive():
+    with pytest.raises(SystemExit):
+        parse_args(["--xiao-serial-port", "COM5", "--xiao-snapshot-url", "http://x/snapshot.jpg"])
+
+
+def test_jpeg_dimensions_ignores_non_jpeg():
+    assert jpeg_dimensions(UXGA_JPEG) == (1600, 1200)
+    assert jpeg_dimensions(b"\xff\xd8not a jpeg\xff\xd9") == (0, 0)
 
 
 def test_public_post_office_has_no_camera_routes(app):

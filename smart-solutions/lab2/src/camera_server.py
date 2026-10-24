@@ -14,7 +14,16 @@ from typing import Any
 
 from flask import Flask, Response, abort, jsonify, send_from_directory, stream_with_context
 
-from .cameras import CameraSource, MockCamera, UsbCamera, UsbCameraConfig, XiaoCamera, XiaoCameraConfig
+from .cameras import (
+    CameraSource,
+    MockCamera,
+    UsbCamera,
+    UsbCameraConfig,
+    XiaoCamera,
+    XiaoCameraConfig,
+    XiaoSerialCamera,
+    XiaoSerialCameraConfig,
+)
 
 CAMERA_NAMES = ("table", "tool")
 STATIC_DIR = Path(__file__).with_name("camera_static")
@@ -126,15 +135,23 @@ def build_sources(args: argparse.Namespace) -> dict[str, CameraSource]:
                 target_fps=args.fps,
             )
         ),
-        "tool": XiaoCamera(
-            XiaoCameraConfig(
-                snapshot_url=args.xiao_snapshot_url,
-                expected_width=args.stream_width,
-                expected_height=args.stream_height,
-                target_fps=args.fps,
-            )
-        ),
+        "tool": build_tool_source(args),
     }
+
+
+def build_tool_source(args: argparse.Namespace) -> CameraSource:
+    if args.xiao_serial_port:
+        return XiaoSerialCamera(
+            XiaoSerialCameraConfig(port=args.xiao_serial_port, target_fps=args.fps)
+        )
+    return XiaoCamera(
+        XiaoCameraConfig(
+            snapshot_url=args.xiao_snapshot_url,
+            expected_width=args.stream_width,
+            expected_height=args.stream_height,
+            target_fps=args.fps,
+        )
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -148,7 +165,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--usb-capture-height", type=int, default=2160)
     parser.add_argument("--stream-width", type=int, default=1280)
     parser.add_argument("--stream-height", type=int, default=720)
-    parser.add_argument("--xiao-snapshot-url", default="")
+    tool = parser.add_mutually_exclusive_group()
+    tool.add_argument("--xiao-snapshot-url", default="")
+    tool.add_argument(
+        "--xiao-serial-port",
+        default="",
+        help="read the tool camera over USB Serial (e.g. COM5) instead of Wi-Fi HTTP",
+    )
     return parser.parse_args(argv)
 
 

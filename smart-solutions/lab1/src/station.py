@@ -808,6 +808,32 @@ def text_status(job_id: int):
         return jsonify(ok=True, job=job_id, execution_status=record.state, error=record.error)
 
 
+@app.get("/api/letter/status")
+def letter_status():
+    """Read-only lifecycle of one execute-mode Atom letter (?session=&seq=), so
+    a caller such as the Lab 2 adapter can wait for completed/failed. Dry-run
+    letters and unknown events have no record."""
+    session = request.args.get("session", "").strip()[:64]
+    try:
+        seq = int(request.args.get("seq", ""))
+    except ValueError:
+        return jsonify(ok=False, error="seq must be an integer"), 400
+    if not session or seq < 0:
+        return jsonify(ok=False, error="session and a non-negative seq are required"), 400
+    with SEQ_LOCK:
+        record = EXECUTION_EVENTS.get((session, seq))
+        if record is None:
+            return jsonify(ok=False, error="unknown letter event", dry_run=CONFIG.dry_run), 404
+        return jsonify(
+            ok=True,
+            session=session,
+            seq=seq,
+            execution_status=record.state,
+            error=record.error,
+            dry_run=CONFIG.dry_run,
+        )
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
     p.add_argument("--host", default="0.0.0.0")

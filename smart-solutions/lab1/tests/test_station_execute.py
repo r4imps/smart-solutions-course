@@ -299,6 +299,35 @@ class StationExecuteTests(unittest.TestCase):
         self.assertFalse(busy.get_json()["robot_started"])
         self.assertEqual(len(FakeMG400Client.instances), 1)
 
+    def test_letter_status_reports_lifecycle_read_only(self) -> None:
+        client = station.app.test_client()
+        url = "/api/letter/status?session=status&seq=3"
+        self.assertEqual(client.get(url).status_code, 404)
+
+        self.post("L", session="status", seq=3)
+        self.wait_for_worker()
+        moves = len(FakeMG400Client.instances[0].moves)
+        body = client.get(url).get_json()
+        self.assertEqual(body["execution_status"], "completed")
+        self.assertIsNone(body["error"])
+        self.assertFalse(body["dry_run"])
+        # Reading the status never starts or repeats motion.
+        client.get(url)
+        self.assertEqual(len(FakeMG400Client.instances), 1)
+        self.assertEqual(len(FakeMG400Client.instances[0].moves), moves)
+
+        with mock.patch.object(
+            FakeMG400Client, "move_and_wait",
+            lambda *args, **kwargs: (_ for _ in ()).throw(MG400Error("synthetic")),
+        ):
+            self.post("L", session="status", seq=4)
+            self.wait_for_worker()
+        failed = client.get("/api/letter/status?session=status&seq=4").get_json()
+        self.assertEqual(failed["execution_status"], "failed")
+        self.assertIn("synthetic", failed["error"])
+        self.assertEqual(client.get("/api/letter/status?session=status&seq=x").status_code, 400)
+        self.assertEqual(client.get("/api/letter/status?seq=1").status_code, 400)
+
     def test_ack_does_not_wait_for_slow_drawing(self) -> None:
         entered = threading.Event()
         release = threading.Event()

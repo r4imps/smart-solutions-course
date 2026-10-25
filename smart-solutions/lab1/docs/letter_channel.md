@@ -311,3 +311,18 @@ laborisse minekut läbi proovida.
 - [ ] MG400 safety gate.
 - [ ] Esimese robotikäsu ajatempel.
 - [x] Latentsuse mõõtmine: viis päris katset, õppejõuga kokkuleppel piisav Lab 1 jaoks.
+
+## Tähe oleku päring (lisatud 25.10.26, Lab 2 jaoks)
+
+Lab 2 jaamaadapter saadab Atomi `letter` töö edasi sellele samale jaamale
+(`POST /api/letter`), et MG400-t liigutaks ainult Lab 1 jaam oma
+kalibratsiooni ja ohutusväravatega. Lõpu ootamiseks lisati üks read-only
+päring:
+
+| Meetod | Tee | Vastus |
+| :--- | :--- | :--- |
+| GET | `/api/letter/status?session=<session>&seq=<seq>` | `execution_status`: `preflight`, `started`, `completed` või `failed`; `error`; `dry_run` |
+
+Päring ei saada robotile käske. Dry-run tähel ja tundmata sündmusel kirjet
+ei ole (HTTP 404). Olek on jaama mälus; jaama restart kustutab selle.
+Lab 1 senist käitumist ega mõõdetud väärtusi see ei muuda.

@@ -33,6 +33,10 @@
             {% else %}<span data-i18n="atom.offlineNote">Atom ei ole ühenduses. Uus töö jääb järjekorda ja võib enne vastuvõtmist aeguda.</span>{% endif %}
           </p>
           <span class="last-seen"><span data-i18n="atom.lastSeen">Viimati nähtud:</span> <code{% if not atom.last_seen %} data-i18n="atom.neverSeen"{% endif %}>{{ atom.last_seen or "Pole veel ühendunud" }}</code></span>
+          {% set device = atom.device or {} %}
+          {% set robot_state = ((device.reported or {}).station or {}).robot_state %}
+          <span class="last-seen" id="robot-state"><span data-i18n="atom.robotState">Roboti olek (jaama teade):</span> <code{% if not robot_state %} data-i18n="atom.notReported"{% endif %}>{{ robot_state or "Pole teatatud" }}</code></span>
+          <span class="last-seen" id="poll-interval"><span data-i18n="atom.pollInterval">Polling-intervall:</span> <code{% if not device.poll_interval_ms %} data-i18n="atom.notReported"{% endif %}>{{ (device.poll_interval_ms ~ " ms") if device.poll_interval_ms else "Pole teatatud" }}</code></span>
         </div>
       </section>
 

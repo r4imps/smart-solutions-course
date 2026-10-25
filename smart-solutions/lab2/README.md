@@ -332,6 +332,10 @@ tulemust; füüsilise katse juurde lisatakse kuupäev, meetod ja failiviide.
   Atomi, jaama ega robotiga.
 - [x] Poll uuendab heartbeat-/olekuinfot; leht näitab `last_seen` põhjal
   online/offline olekut, roboti olekut ja polling-intervalli.
+  - 25.10.26 parandus: kuni selle päevani näitas leht ainult online/offline
+    olekut ja `last_seen` väärtust; roboti olek ja polling-intervall olid
+    ainult `/api/status` ja `/api/jobs` JSON-is. Nüüd näitab Atomi paneel ka
+    jaama teatatud `robot_state` väärtust ja Atomi `poll_interval_ms` väärtust.
 - [x] Sama terminaltulemuse kordussaatmine sama töö ID-ga on serveris idempotentne.
 - [x] Postkontori API leping on kirjas failis `docs/server_api.md`.
 - [x] Kohalik Flask postkontor, SQLite store ja minimaalne kasutajaleht on teostatud.

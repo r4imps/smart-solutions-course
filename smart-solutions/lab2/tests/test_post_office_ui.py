@@ -295,6 +295,26 @@ def test_atom_state_explains_execution_limits(app, state, expected):
     assert "Pole veel ühendunud" in page.tagged("main")[0]["text"]
 
 
+def test_page_shows_reported_robot_state_and_poll_interval(
+    client, user_headers, atom_headers, valid_poll
+):
+    def meta(item_id):
+        page = Page(client.get("/", headers=user_headers).get_data(as_text=True))
+        span = next(node for node in page.tagged("span") if node["attrs"].get("id") == item_id)
+        return next(node for node in page.tagged("code") if span in node["parents"])
+
+    assert meta("robot-state")["text"] == "Pole teatatud"
+    assert meta("poll-interval")["attrs"].get("data-i18n") == "atom.notReported"
+
+    valid_poll["poll_interval_ms"] = 2500
+    valid_poll["station"]["robot_state"] = "locally_enabled"
+    assert client.post("/api/atom/poll", headers=atom_headers, json=valid_poll).status_code == 200
+    # Machine values stay untranslated, like the job states.
+    state, interval = meta("robot-state"), meta("poll-interval")
+    assert state["text"] == "locally_enabled" and "data-i18n" not in state["attrs"]
+    assert interval["text"] == "2500 ms" and "data-i18n" not in interval["attrs"]
+
+
 def test_ui_loads_no_external_styles_scripts_or_fonts(client, user_headers):
     page = Page(client.get("/", headers=user_headers).get_data(as_text=True))
     assert not page.tagged("link")

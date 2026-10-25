@@ -52,5 +52,5 @@ Praegune pressure-extension püsivara pole läbinud füüsilist kontrolli.
    lokaalset pollingut ja `last_seen`; vajadusel korrata reconnect-katset.
 6. Jätkata pressure-, camera- ja MG400-katseid nende ohutusreeglite järgi.
 
-Lab 2 [praegune seis](../README.md#praegune-seis--131026) eristab tarkvaralisi
+Lab 2 [praegune seis](../README.md#praegune-seis--231026) eristab tarkvaralisi
 tulemusi, välise ligipääsu takistust ja veel tegemata füüsilisi katseid.

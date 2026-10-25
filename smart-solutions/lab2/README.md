@@ -379,7 +379,7 @@ tulemust; füüsilise katse juurde lisatakse kuupäev, meetod ja failiviide.
   sama töö kontrollimatu kordusväljastuse.
 - [x] Atom API on väljamineva pollingu jaoks; droplet ei loo ühendust
   Atomi, jaama ega robotiga.
-- [ ] Poll uuendab heartbeat-/olekuinfot; leht näitab `last_seen` põhjal
+- [x] Poll uuendab heartbeat-/olekuinfot; leht näitab `last_seen` põhjal
   online/offline olekut, roboti olekut ja polling-intervalli.
   - 25.10.26 parandus: kasutajaleht (`server/templates/index.html`) näitab
     ainult online/stale/offline olekut ja `last_seen` aega. Roboti olek
@@ -389,6 +389,9 @@ tulemust; füüsilise katse juurde lisatakse kuupäev, meetod ja failiviide.
   - 25.10.26: märge võeti maha, sest kasutajalehel puuduvad roboti olek ja
     polling-intervall (vt parandus ülal). Uuesti märgitakse pärast nende
     lisamist lehele.
+  - 13.11.26: Atomi paneel näitab nüüd ka jaama teatatud `robot_state`
+    väärtust ja Atomi `poll_interval_ms` väärtust (test
+    `test_post_office_ui.py`); märge pandi tagasi.
 - [x] Sama terminaltulemuse kordussaatmine sama töö ID-ga on serveris idempotentne.
 - [x] Postkontori API leping on kirjas failis `docs/server_api.md`.
 - [x] Kohalik Flask postkontor, SQLite store ja minimaalne kasutajaleht on teostatud.

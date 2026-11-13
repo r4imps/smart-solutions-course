@@ -448,8 +448,16 @@ tulemust; füüsilise katse juurde lisatakse kuupäev, meetod ja failiviide.
   Atom säilitab tulemuse ja saadab selle pärast ühenduse taastumist.
 - [ ] Katkestuskatse on tehtud ohutult kolm korda enne internetist tööde vastuvõttu.
 - [ ] Atom `last_seen`/offline kuvamine on päris katkestusega kontrollitud.
-- [ ] Laua UHD-kaamera näitab kogu tööala, ruudustikku servast servani ja robotit.
-- [ ] Tööriistakaamera näitab otsikut ning selle all olevat detaili.
+- [x] Laua UHD-kaamera näitab kogu tööala, ruudustikku servast servani ja robotit.
+  - 13.11.26: kinnitatud 3D Printing Lab 2 tõendiga. Verbatim 49580 (3840 × 2160, 30 fps)
+    paigaldati 25.10.26 laua serva posti otsa; kaader näitab kogu ruudustikku, kõiki
+    hoidikuid ja robotit ülevalt ([kaader](https://github.com/Dennel04/3d-printing-course/blob/9cf6bf179b39b055f85b1e05a061bb8c26b49af6/3d-print/lab2/docs/photos/veebikaamera-kaader-2026-10-25.jpg),
+    [3DP README](https://github.com/Dennel04/3d-printing-course/blob/9cf6bf179b39b055f85b1e05a061bb8c26b49af6/3d-print/lab2/README.md)). Pildi kõikumise mõõtmine roboti liikumise ajal on 3DP-s lahti.
+- [x] Tööriistakaamera näitab otsikut ning selle all olevat detaili.
+  - 13.11.26: kinnitatud 3D Printing Lab 2 tõendiga. XIAO kaader 24.10.26 19:22 (ring 1,
+    klaas 4, napp töökoha C+1 kohal) näitab iminappa ning selle all AtomS3 ja klaasi
+    ([kaader](https://github.com/Dennel04/3d-printing-course/blob/9cf6bf179b39b055f85b1e05a061bb8c26b49af6/3d-print/lab2/docs/photos/tool-camera-workstation-2026-10-24.jpg)). Pilt tuli USB Serial
+    kaudu; Smart Solutions Wi-Fi püsivara kontroll jääb eraldi.
 - [ ] Mõlemad kaamerapildid on jaama lehel ja sama autentimise taga.
 - [ ] Kaameraid ei saa postkontori kaudu ega internetist otse avada; Lab 2
   postkontor ei vahenda kaameravooge.
@@ -485,11 +493,17 @@ tulemust; füüsilise katse juurde lisatakse kuupäev, meetod ja failiviide.
   login on kontrollitud 16.10.26; avalik HTTPS kontrollitud 20.10.26.
 - [x] XIAO olemasolu ja USB Serial diagnostiline JPEG on 3D Printing Lab 2-s
   kinnitatud 23.10.26; Smart Solutions Wi-Fi püsivara kontroll jääb eraldi.
-- [ ] Identifitseeritud Verbatim AWC-03 (49580) lõplik paigaldus ja sobivus
+- [x] Identifitseeritud Verbatim AWC-03 (49580) lõplik paigaldus ja sobivus
   kogu laua üldvaateks on kontrollitud.
+  - 13.11.26: paigaldatud 25.10.26 posti otsa laua servas (vertikaalne toru ~480 mm,
+    telg J1-st ~568 mm); kaader näitab kogu laua ([kaader](https://github.com/Dennel04/3d-printing-course/blob/9cf6bf179b39b055f85b1e05a061bb8c26b49af6/3d-print/lab2/docs/photos/veebikaamera-kaader-2026-10-25.jpg)).
 - [ ] Andmehõive Lab 2 päris rõhukalibratsioon on kättesaadav.
-- [ ] 3D Printing Lab 2 laua- ja tööriistakaamera kinnitused on valmis ning
+- [x] 3D Printing Lab 2 laua- ja tööriistakaamera kinnitused on valmis ning
   füüsiliselt kontrollitud.
+  - 13.11.26: tööriistakaamera kinnitus `xiao-square-mount-v2` prinditud, paigaldatud ja
+    3DP-s märgitud tehtuks 24.10.26; veebikaamera post (nurk + ülemine v2 + kiil) paigaldatud
+    25.10.26 ([3DP README](https://github.com/Dennel04/3d-printing-course/blob/9cf6bf179b39b055f85b1e05a061bb8c26b49af6/3d-print/lab2/README.md)). 3DP-s on veel lahti pildi kõikumise mõõtmine
+    ja kaabli kinnitamine mööda toru.
 
 ## Kavandatud tulemused
 

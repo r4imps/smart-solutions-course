@@ -402,6 +402,12 @@ tulemust; füüsilise katse juurde lisatakse kuupäev, meetod ja failiviide.
 
 - [ ] Igal kasutataval arvutil on oma SSH võtmepaar; privaatvõtmeid ei jagata
   ega lisata reposse.
+  - 13.11.26 otsus (Raimo): dropletile peab saama sisse logida iga meeskonnaliige,
+    igaüks oma arvutist ja oma võtmega. Seis: Nikita — tehtud (võtmega login 16.10.26);
+    Raimo, Denys, Maksim — TODO. Igaüks teeb `ssh-keygen -t ed25519`, saadab ainult
+    `id_ed25519.pub` sisu (õppejõule või Nikitale, kes lisab selle serveri
+    `authorized_keys` faili) ja kontrollib login'i ([`deploy/README.md`](deploy/README.md),
+    „Kohalik eelkontroll“). Punkti saab märkida, kui kõik neli on võtmega sisse loginud.
 - [x] Nikita sai õppejõult dropleti ligipääsuandmed ja kontrollis võtmega
   SSH login'it 16.10.26.
 - [x] Repo on `/opt/smart-solutions-lab2/app`; production-sõltuvused ja
